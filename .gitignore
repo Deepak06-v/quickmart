@@ -1,0 +1,62 @@
+# ==========================================
+# Dependencies
+# ==========================================
+node_modules/
+.pnp
+.pnp.js
+
+# ==========================================
+# Environment Variables & Secrets
+# ==========================================
+.env
+.env*.local
+.env.development
+.env.test
+.env.production
+# Keep example environment templates tracked
+!*.env.example
+
+# ==========================================
+# Build Outputs & Compilers
+# ==========================================
+dist/
+build/
+*.tsbuildinfo
+
+# ==========================================
+# Expo & React Native
+# ==========================================
+.expo/
+.expo-shared/
+web-build/
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+
+# ==========================================
+# Backend Runtime & Uploads
+# ==========================================
+uploads/
+*.log
+logs/
+*.sqlite
+*.db
+
+# ==========================================
+# System & Editor Files
+# ==========================================
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDEs
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.sublime-workspace
