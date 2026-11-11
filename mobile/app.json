@@ -2,6 +2,7 @@
   "expo": {
     "name": "QuickMart",
     "slug": "quickmart",
+    "owner": "deepak_06v",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -22,10 +23,13 @@
       },
       "package": "com.quickmart.app",
       "permissions": [
-        "ACCESS_COARSE_LOCATION",
-        "ACCESS_FINE_LOCATION",
-        "CAMERA",
-        "READ_EXTERNAL_STORAGE"
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.CAMERA",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.RECORD_AUDIO"
       ]
     },
     "web": {
@@ -54,7 +58,10 @@
     },
     "extra": {
       "eas": {
-        "projectId": ""
+        "projectId": "20ca39ff-cdaa-4a14-8056-ffbb76320756"
+      },
+      "router": {
+        "origin": false
       }
     }
   }
