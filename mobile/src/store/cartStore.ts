@@ -84,7 +84,12 @@ export const useCartStore = create<CartState>((set, get) => ({
 
   clearCart: async () => {
     set({ items: [] });
-    await AsyncStorage.removeItem(CART_STORAGE_KEY);
+    try {
+      await AsyncStorage.setItem(CART_STORAGE_KEY, JSON.stringify([]));
+    } catch {
+      // fallback
+      await AsyncStorage.removeItem(CART_STORAGE_KEY).catch(() => {});
+    }
   },
 
   getSubtotal: () => {

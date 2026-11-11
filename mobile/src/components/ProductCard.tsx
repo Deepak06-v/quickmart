@@ -17,14 +17,16 @@ import { Colors, Typography, Spacing, BorderRadius, Shadows } from '../theme';
 interface ProductCardProps {
   product: IProduct;
   layout?: 'grid' | 'horizontal';
+  cardWidth?: number;
 }
 
 const { width } = Dimensions.get('window');
-const GRID_ITEM_WIDTH = (width - Spacing.lg * 2 - Spacing.md) / 2;
+const GRID_ITEM_WIDTH = Math.floor((width - Spacing.lg * 2 - Spacing.md - 2) / 2);
 
 export const ProductCard: React.FC<ProductCardProps> = ({
   product,
   layout = 'grid',
+  cardWidth,
 }) => {
   const router = useRouter();
   const quantity = useCartStore((state) => state.getItemQuantity(product._id));
@@ -115,7 +117,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     <TouchableOpacity
       activeOpacity={0.85}
       onPress={handlePress}
-      style={styles.gridCard}
+      style={[styles.gridCard, cardWidth ? { width: cardWidth } : null]}
     >
       <View style={styles.gridImageContainer}>
         <Image source={{ uri: imageUri }} style={styles.gridImage} resizeMode="cover" />

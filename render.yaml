@@ -1,0 +1,49 @@
+services:
+  - type: web
+    name: quickmart-backend
+    runtime: node
+    plan: free
+    region: oregon
+    rootDir: backend
+    buildCommand: npm install --include=dev && npm run build
+    startCommand: npm run start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: MONGODB_URI
+        value: mongodb://deepakwali2006_db_user:vMyqLF0gVrQxQFpT@ac-eazj6s9-shard-00-00.qgtx2x9.mongodb.net:27017,ac-eazj6s9-shard-00-01.qgtx2x9.mongodb.net:27017,ac-eazj6s9-shard-00-02.qgtx2x9.mongodb.net:27017/quickmart?ssl=true&replicaSet=atlas-svyr17-shard-0&authSource=admin&appName=Cluster0
+      - key: USE_IN_MEMORY_DB
+        value: "false"
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 30d
+      - key: SMS_PROVIDER
+        value: dev
+      - key: SMS_API_KEY
+        value: dev_dummy_key
+      - key: SMS_SENDER_ID
+        value: QKMART
+      - key: STORE_LATITUDE
+        value: "22.5645"
+      - key: STORE_LONGITUDE
+        value: "72.9289"
+      - key: STORE_NAME
+        value: QuickMart Anand Rural Hub
+      - key: STORE_ADDRESS
+        value: Main Market Road, Anand Rural Distribution Center, Anand 388001
+      - key: DELIVERY_RADIUS_KM
+        value: "15"
+      - key: BASE_DELIVERY_FEE
+        value: "25"
+      - key: FREE_DELIVERY_THRESHOLD
+        value: "299"
+      - key: MIN_ORDER_AMOUNT
+        value: "99"
+      - key: ESTIMATED_SPEED_KMH
+        value: "25"
+      - key: PREPARATION_TIME_MINUTES
+        value: "15"

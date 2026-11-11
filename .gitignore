@@ -35,6 +35,10 @@ web-build/
 *.key
 *.mobileprovision
 *.orig.*
+*.apk
+*.aab
+artifacts/
+mobile/artifacts/
 
 # ==========================================
 # Backend Runtime & Uploads

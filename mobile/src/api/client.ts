@@ -2,9 +2,20 @@ import { Platform } from 'react-native';
 import { getAuthToken, clearAuthSession } from '../utils/storage';
 
 // In Android emulator, 10.0.2.2 points to host machine's localhost
-const DEFAULT_HOST = Platform.OS === 'android' ? '10.0.2.2' : 'localhost';
-export const API_BASE_URL =
-  process.env.EXPO_PUBLIC_API_URL || `http://${DEFAULT_HOST}:5000/api`;
+const getBaseUrl = () => {
+  let envUrl = process.env.EXPO_PUBLIC_API_URL;
+  if (envUrl) {
+    envUrl = envUrl.replace(/\/+$/, '');
+    if (Platform.OS === 'android' && envUrl.includes('localhost')) {
+      return envUrl.replace('localhost', '10.0.2.2');
+    }
+    return envUrl;
+  }
+  const defaultHost = Platform.OS === 'android' ? '10.0.2.2' : 'localhost';
+  return `http://${defaultHost}:5000/api`;
+};
+
+export const API_BASE_URL = getBaseUrl();
 
 export class ApiError extends Error {
   public statusCode: number;
