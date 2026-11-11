@@ -13,13 +13,13 @@
         "buildType": "apk"
       },
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://quickmart-backend.onrender.com/api"
+        "EXPO_PUBLIC_API_URL": "https://quickmart-backend-4lqz.onrender.com/api"
       }
     },
     "production": {
       "autoIncrement": true,
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://quickmart-backend.onrender.com/api"
+        "EXPO_PUBLIC_API_URL": "https://quickmart-backend-4lqz.onrender.com/api"
       }
     }
   },
