@@ -9,7 +9,9 @@ npm-debug.*
 *.p12
 *.key
 *.mobileprovision
-*.orig.*
+artifacts/
+*.apk
+*.aab
 .env
 .env*.local
 .env.development
