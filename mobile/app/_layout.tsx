@@ -1,8 +1,11 @@
 import React, { useEffect } from 'react';
+import { View, ActivityIndicator } from 'react-native';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { useFonts } from 'expo-font';
+import { Ionicons } from '@expo/vector-icons';
 import { useAuthStore } from '../src/store/authStore';
 import { useCartStore } from '../src/store/cartStore';
 import { useLocationStore } from '../src/store/locationStore';
@@ -18,6 +21,7 @@ const queryClient = new QueryClient({
 });
 
 export default function RootLayout() {
+  const [fontsLoaded, fontError] = useFonts(Ionicons.font);
   const initializeAuth = useAuthStore((state) => state.initializeAuth);
   const loadCart = useCartStore((state) => state.loadCart);
   const initLocation = useLocationStore((state) => state.initLocation);
@@ -27,6 +31,14 @@ export default function RootLayout() {
     loadCart();
     initLocation();
   }, []);
+
+  if (!fontsLoaded && !fontError) {
+    return (
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: Colors.background }}>
+        <ActivityIndicator size="large" color={Colors.primary} />
+      </View>
+    );
+  }
 
   return (
     <QueryClientProvider client={queryClient}>

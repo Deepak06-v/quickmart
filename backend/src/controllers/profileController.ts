@@ -1,10 +1,6 @@
 import { Response, NextFunction } from 'express';
 import { AuthenticatedRequest } from '../middleware/authMiddleware';
-import { User } from '../models/User';
-import { Otp } from '../models/Otp';
-import { getSmsProvider, generateNumericOtp } from '../services/sms/smsService';
-import { hashOtp, compareOtp } from '../utils/crypto';
-import { env } from '../config/env';
+import { issueAndSendOtp, verifyAndConsumeOtp } from '../services/otpService';
 import {
   updateProfileSchema,
   addAddressSchema,
@@ -185,30 +181,13 @@ export async function requestDeleteAccountOtp(
   try {
     const user = req.user!;
 
-    await Otp.deleteMany({ mobile: user.mobile, purpose: 'ACCOUNT_DELETION' });
-
-    const rawOtp = generateNumericOtp();
-    const otpHash = await hashOtp(rawOtp);
-    const expiresAt = new Date(Date.now() + env.OTP_EXPIRY_MINUTES * 60 * 1000);
-
-    await Otp.create({
-      mobile: user.mobile,
-      otpHash,
-      purpose: 'ACCOUNT_DELETION',
-      expiresAt,
-      attempts: 0,
-      maxAttempts: env.OTP_MAX_ATTEMPTS,
-      isVerified: false,
-    });
-
-    const smsProvider = getSmsProvider();
-    const smsResult = await smsProvider.sendOtp(user.mobile, rawOtp, 'ACCOUNT_DELETION');
+    const otpResult = await issueAndSendOtp(user.mobile, 'ACCOUNT_DELETION');
 
     res.status(200).json({
       success: true,
-      message: `Account deletion verification OTP sent to +91-${user.mobile}`,
-      expiresInMinutes: env.OTP_EXPIRY_MINUTES,
-      ...(smsResult.devOtp ? { devOtp: smsResult.devOtp } : {}),
+      message: `Account deletion verification OTP request accepted for +91-${user.mobile}`,
+      expiresInMinutes: otpResult.expiresInMinutes,
+      ...(otpResult.devOtp ? { devOtp: otpResult.devOtp } : {}),
     });
   } catch (error) {
     next(error);
@@ -227,26 +206,12 @@ export async function confirmDeleteAccount(
     const user = req.user!;
     const { otp } = confirmDeleteAccountSchema.parse(req.body);
 
-    const otpDoc = await Otp.findOne({
-      mobile: user.mobile,
-      purpose: 'ACCOUNT_DELETION',
-      isVerified: false,
-      expiresAt: { $gt: new Date() },
-    });
-
-    if (!otpDoc) {
-      throw new AppError('Verification OTP has expired or is invalid.', 400);
-    }
-
-    const isMatch = await compareOtp(otp, otpDoc.otpHash);
-    if (!isMatch) {
-      otpDoc.attempts += 1;
-      await otpDoc.save();
-      throw new AppError('Incorrect OTP. Please enter the correct code.', 400);
-    }
-
-    // Invalidate OTP
-    await Otp.deleteOne({ _id: otpDoc._id });
+    await verifyAndConsumeOtp(
+      user.mobile,
+      otp,
+      'ACCOUNT_DELETION',
+      'Verification OTP has expired or is invalid.'
+    );
 
     // Anonymize and mark user deleted for regulatory data compliance
     user.isDeleted = true;

@@ -1,13 +1,11 @@
 import { Response, NextFunction } from 'express';
 import { AuthenticatedRequest } from '../middleware/authMiddleware';
-import { Order, OrderStatus } from '../models/Order';
+import { Order } from '../models/Order';
 import { Product } from '../models/Product';
-import { Otp } from '../models/Otp';
 import { DeliveryConfig } from '../models/DeliveryConfig';
 import { env } from '../config/env';
-import { getSmsProvider, generateNumericOtp } from '../services/sms/smsService';
-import { hashOtp, compareOtp } from '../utils/crypto';
-import { calculateDistanceKm, isWithinDeliveryRadius, calculateDeliveryEta } from '../utils/geo';
+import { issueAndSendOtp, verifyAndConsumeOtp } from '../services/otpService';
+import { isWithinDeliveryRadius, calculateDeliveryEta } from '../utils/geo';
 import { generateOrderNumber } from '../utils/orderNumber';
 import { requestOrderOtpSchema, confirmOrderSchema, cancelOrderSchema } from '../validators/orderValidators';
 import { AppError } from '../middleware/errorHandler';
@@ -66,32 +64,13 @@ export async function requestOrderConfirmationOtp(
       throw new AppError(`Minimum order amount is ₹${config.minOrderAmount}. Current subtotal is ₹${subtotal}.`, 400);
     }
 
-    // Invalidate existing active order OTPs for this mobile
-    await Otp.deleteMany({ mobile: user.mobile, purpose: 'ORDER_CONFIRMATION' });
-
-    // Generate 6-digit order confirmation OTP
-    const rawOtp = generateNumericOtp();
-    const otpHash = await hashOtp(rawOtp);
-    const expiresAt = new Date(Date.now() + env.OTP_EXPIRY_MINUTES * 60 * 1000);
-
-    await Otp.create({
-      mobile: user.mobile,
-      otpHash,
-      purpose: 'ORDER_CONFIRMATION',
-      expiresAt,
-      attempts: 0,
-      maxAttempts: env.OTP_MAX_ATTEMPTS,
-      isVerified: false,
-    });
-
-    const smsProvider = getSmsProvider();
-    const smsResult = await smsProvider.sendOtp(user.mobile, rawOtp, 'ORDER_CONFIRMATION');
+    const otpResult = await issueAndSendOtp(user.mobile, 'ORDER_CONFIRMATION');
 
     res.status(200).json({
       success: true,
-      message: `Order confirmation OTP sent to +91-${user.mobile}`,
-      expiresInMinutes: env.OTP_EXPIRY_MINUTES,
-      ...(smsResult.devOtp ? { devOtp: smsResult.devOtp } : {}),
+      message: `Order confirmation OTP request accepted for +91-${user.mobile}`,
+      expiresInMinutes: otpResult.expiresInMinutes,
+      ...(otpResult.devOtp ? { devOtp: otpResult.devOtp } : {}),
     });
   } catch (error) {
     next(error);
@@ -125,34 +104,12 @@ export async function confirmOrder(
     }
 
     // Verify 2nd OTP
-    const otpDoc = await Otp.findOne({
-      mobile: user.mobile,
-      purpose: 'ORDER_CONFIRMATION',
-      isVerified: false,
-      expiresAt: { $gt: new Date() },
-    });
-
-    if (!otpDoc) {
-      throw new AppError('Order confirmation OTP has expired or is invalid. Please request a new OTP.', 400);
-    }
-
-    if (otpDoc.attempts >= otpDoc.maxAttempts) {
-      await Otp.deleteOne({ _id: otpDoc._id });
-      throw new AppError('Too many failed attempts. Please request a fresh OTP.', 400);
-    }
-
-    const isMatch = await compareOtp(otp, otpDoc.otpHash);
-    if (!isMatch) {
-      otpDoc.attempts += 1;
-      await otpDoc.save();
-      const remaining = otpDoc.maxAttempts - otpDoc.attempts;
-      throw new AppError(`Incorrect OTP. ${remaining} attempt(s) remaining.`, 400);
-    }
-
-    // Mark OTP verified & remove
-    otpDoc.isVerified = true;
-    await otpDoc.save();
-    await Otp.deleteOne({ _id: otpDoc._id });
+    await verifyAndConsumeOtp(
+      user.mobile,
+      otp,
+      'ORDER_CONFIRMATION',
+      'Order confirmation OTP has expired or is invalid. Please request a new OTP.'
+    );
 
     // Fetch config for fee and distance
     const config = (await DeliveryConfig.findOne()) || {

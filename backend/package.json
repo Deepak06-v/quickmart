@@ -8,7 +8,8 @@
     "build": "tsc",
     "start": "node dist/app.js",
     "seed": "tsx scripts/seed.ts",
-    "test:api": "tsx scripts/test-api.ts"
+    "test:api": "tsx scripts/test-api.ts",
+    "test:apitxt": "tsx scripts/test-apitxt.ts"
   },
   "keywords": [
     "hyperlocal",

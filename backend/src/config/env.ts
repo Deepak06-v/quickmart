@@ -11,9 +11,16 @@ export const env = {
   JWT_SECRET: process.env.JWT_SECRET || 'quickmart_super_secure_jwt_secret_dev_2026_change_in_prod',
   JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN || '30d',
 
-  SMS_PROVIDER: (process.env.SMS_PROVIDER || 'dev') as 'dev' | 'fast2sms' | 'msg91' | 'twilio',
+  SMS_PROVIDER: (process.env.SMS_PROVIDER || 'dev') as 'dev' | 'apitxt' | 'fast2sms' | 'msg91' | 'twilio',
   SMS_API_KEY: process.env.SMS_API_KEY || '',
   SMS_SENDER_ID: process.env.SMS_SENDER_ID || 'QKMART',
+
+  APITXT_AUTH_KEY: process.env.APITXT_AUTH_KEY || '',
+  APITXT_API_URL: process.env.APITXT_API_URL || 'https://apitxt.com/api/sendOTP',
+  APITXT_CHANNEL: process.env.APITXT_CHANNEL || 'sms',
+  APITXT_COUNTRY: process.env.APITXT_COUNTRY || '91',
+  APITXT_TEMPLATE_ID: process.env.APITXT_TEMPLATE_ID || '',
+  APITXT_TIMEOUT_MS: parseInt(process.env.APITXT_TIMEOUT_MS || '15000', 10),
 
   OTP_EXPIRY_MINUTES: parseInt(process.env.OTP_EXPIRY_MINUTES || '5', 10),
   OTP_MAX_ATTEMPTS: parseInt(process.env.OTP_MAX_ATTEMPTS || '5', 10),

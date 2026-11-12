@@ -1,24 +1,13 @@
 import { z } from 'zod';
+import { INDIAN_MOBILE_REGEX, sanitizeMobile } from '../utils/mobile';
 
-// Regex for standard Indian 10-digit mobile number
-export const mobileRegex = /^[6-9]\d{9}$/;
-
-export function sanitizeMobile(raw: string): string {
-  // Strip whitespace, dashes, plus signs
-  const cleaned = raw.replace(/[\s\-\+]/g, '');
-  if (cleaned.startsWith('91') && cleaned.length === 12) {
-    return cleaned.slice(2);
-  }
-  if (cleaned.startsWith('0') && cleaned.length === 11) {
-    return cleaned.slice(1);
-  }
-  return cleaned;
-}
+export const mobileRegex = INDIAN_MOBILE_REGEX;
+export { sanitizeMobile };
 
 export const requestAuthOtpSchema = z.object({
   mobile: z
     .string()
-    .transform(sanitizeMobile)
+    .transform((val) => sanitizeMobile(val))
     .refine((val) => mobileRegex.test(val), {
       message: 'Please provide a valid 10-digit Indian mobile number',
     }),
@@ -28,7 +17,7 @@ export const requestAuthOtpSchema = z.object({
 export const verifyAuthOtpSchema = z.object({
   mobile: z
     .string()
-    .transform(sanitizeMobile)
+    .transform((val) => sanitizeMobile(val))
     .refine((val) => mobileRegex.test(val), {
       message: 'Please provide a valid 10-digit Indian mobile number',
     }),

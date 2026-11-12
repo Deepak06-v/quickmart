@@ -22,9 +22,19 @@ services:
       - key: JWT_EXPIRES_IN
         value: 30d
       - key: SMS_PROVIDER
-        value: dev
-      - key: SMS_API_KEY
-        value: dev_dummy_key
+        value: apitxt
+      - key: APITXT_AUTH_KEY
+        sync: false
+      - key: APITXT_API_URL
+        value: https://apitxt.com/api/sendOTP
+      - key: APITXT_CHANNEL
+        value: sms
+      - key: APITXT_COUNTRY
+        value: "91"
+      - key: APITXT_TEMPLATE_ID
+        sync: false
+      - key: APITXT_TIMEOUT_MS
+        value: "15000"
       - key: SMS_SENDER_ID
         value: QKMART
       - key: STORE_LATITUDE
