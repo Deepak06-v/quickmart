@@ -7,6 +7,7 @@ import productRoutes from './productRoutes';
 import cartRoutes from './cartRoutes';
 import orderRoutes from './orderRoutes';
 import profileRoutes from './profileRoutes';
+import adminRoutes from './adminRoutes';
 
 const router = Router();
 
@@ -17,6 +18,7 @@ router.use('/products', productRoutes);
 router.use('/cart', cartRoutes);
 router.use('/orders', orderRoutes);
 router.use('/profile', profileRoutes);
+router.use('/admin', adminRoutes);
 
 // Health check endpoint
 router.get('/health', (_req, res) => {

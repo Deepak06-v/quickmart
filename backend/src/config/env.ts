@@ -11,6 +11,10 @@ export const env = {
   JWT_SECRET: process.env.JWT_SECRET || 'quickmart_super_secure_jwt_secret_dev_2026_change_in_prod',
   JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN || '30d',
 
+  ADMIN_EMAIL: (process.env.ADMIN_EMAIL || '').toLowerCase().trim(),
+  ADMIN_PASSWORD: process.env.ADMIN_PASSWORD || '',
+  ADMIN_NAME: (process.env.ADMIN_NAME || 'Store Owner').trim(),
+
   SMS_PROVIDER: (process.env.SMS_PROVIDER || 'dev') as 'dev' | 'apitxt' | 'fast2sms' | 'msg91' | 'twilio',
   SMS_API_KEY: process.env.SMS_API_KEY || '',
   SMS_SENDER_ID: process.env.SMS_SENDER_ID || 'QKMART',

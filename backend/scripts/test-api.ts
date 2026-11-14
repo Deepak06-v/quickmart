@@ -5,6 +5,7 @@ import { Category } from '../src/models/Category';
 import { Product } from '../src/models/Product';
 import { DeliveryConfig } from '../src/models/DeliveryConfig';
 import { env } from '../src/config/env';
+import { resetOtpRateLimiter } from '../src/middleware/rateLimiter';
 
 async function runTests() {
   console.log('🧪 Starting backend integration tests...\n');
@@ -15,7 +16,10 @@ async function runTests() {
   const server: Server = await startServer();
   const baseUrl = `http://localhost:5001/api`;
 
-  // Seed minimal data for test
+  // Reset and seed minimal data for test
+  await Product.deleteMany({});
+  await Category.deleteMany({});
+
   const cat = await Category.create({
     name: 'Fresh Vegetables',
     slug: 'vegetables',
@@ -177,6 +181,7 @@ async function runTests() {
   });
 
   // Test 11: COD Order Confirmation Step 1 - Request 2nd OTP
+  resetOtpRateLimiter();
   let orderOtp = '';
   await assert('POST /orders/request-otp generates 2nd separate OTP for COD', async () => {
     const res = await fetch(`${baseUrl}/orders/request-otp`, {

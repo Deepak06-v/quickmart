@@ -3,8 +3,10 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import path from 'path';
+import fs from 'fs';
 import { env } from './config/env';
 import { connectDB } from './config/db';
+import { syncAdminFromEnv } from './utils/syncAdmin';
 import { autoSeedIfEmpty } from './utils/autoSeed';
 import apiRoutes from './routes';
 import { errorHandler } from './middleware/errorHandler';
@@ -15,6 +17,7 @@ const app = express();
 app.use(
   helmet({
     crossOriginResourcePolicy: { policy: 'cross-origin' }, // Allow images to be loaded on mobile
+    contentSecurityPolicy: false, // Allow Vite Admin UI scripts and assets to load without restriction
   })
 );
 app.use(cors());
@@ -38,6 +41,25 @@ app.get('/health', (_req, res) => {
 // Mount API routes
 app.use('/api', apiRoutes);
 
+// Admin Web Application static hosting
+const adminDistPath = path.resolve(__dirname, '../admin-ui/dist');
+app.use('/admin', express.static(adminDistPath));
+
+// SPA fallback for all /admin routes
+app.get(['/admin', '/admin/*'], (_req, res, next) => {
+  const indexPath = path.join(adminDistPath, 'index.html');
+  if (fs.existsSync(indexPath)) {
+    res.sendFile(indexPath);
+  } else {
+    next();
+  }
+});
+
+// Root route redirect to /admin
+app.get('/', (_req, res) => {
+  res.redirect('/admin');
+});
+
 // 404 Handler for undefined routes
 app.use((req, res) => {
   res.status(404).json({
@@ -52,6 +74,7 @@ app.use(errorHandler);
 // Start server function
 export async function startServer() {
   await connectDB();
+  await syncAdminFromEnv();
   await autoSeedIfEmpty();
   const server = app.listen(env.PORT, '0.0.0.0', () => {
     console.log(`\n🚀 QuickMart Hyperlocal Backend is running on port ${env.PORT}`);
