@@ -151,6 +151,12 @@ export const ProductsAndCategoriesView: React.FC<ProductsAndCategoriesViewProps>
 
   // Open Product Modal
   const handleOpenProductModal = (product?: IProduct) => {
+    if (!product && categories.length === 0) {
+      showToast('Please create at least one category before adding products.', 'info');
+      setSubTab('categories');
+      return;
+    }
+
     if (product) {
       setEditingProduct(product);
       setProductForm({
@@ -587,7 +593,18 @@ export const ProductsAndCategoriesView: React.FC<ProductsAndCategoriesViewProps>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 text-sm">
-                {categories.map((c) => (
+                {categories.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="py-12 text-center text-slate-500">
+                      <Layers className="w-10 h-10 text-slate-300 stroke-[1.5] mx-auto mb-2" />
+                      <p className="font-semibold text-sm">No categories added yet</p>
+                      <p className="text-xs text-slate-400 mt-1">
+                        Click "Add Category" above to create your first grocery category.
+                      </p>
+                    </td>
+                  </tr>
+                ) : (
+                  categories.map((c) => (
                   <tr key={c._id} className="hover:bg-slate-50/50 transition-colors">
                     <td className="py-3.5 px-4">
                       <div className="flex items-center gap-3">
@@ -643,7 +660,7 @@ export const ProductsAndCategoriesView: React.FC<ProductsAndCategoriesViewProps>
                       </div>
                     </td>
                   </tr>
-                ))}
+                )))}
               </tbody>
             </table>
           </div>
@@ -692,11 +709,15 @@ export const ProductsAndCategoriesView: React.FC<ProductsAndCategoriesViewProps>
                     onChange={(e) => setProductForm({ ...productForm, category: e.target.value })}
                     className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 cursor-pointer"
                   >
-                    {categories.map((c) => (
-                      <option key={c._id} value={c._id}>
-                        {c.name}
-                      </option>
-                    ))}
+                    {categories.length === 0 ? (
+                      <option value="">No categories yet (create one first)</option>
+                    ) : (
+                      categories.map((c) => (
+                        <option key={c._id} value={c._id}>
+                          {c.name}
+                        </option>
+                      ))
+                    )}
                   </select>
                 </div>
 

@@ -166,21 +166,27 @@ export default function HomeScreen() {
           )}
         </View>
 
-        <View style={styles.categoriesGrid}>
-          {categories.map((cat) => (
-            <CategoryPill
-              key={cat._id}
-              category={cat}
-              width={categoryCardWidth}
-              isSelected={selectedCategorySlug === cat.slug}
-              onPress={() =>
-                setSelectedCategorySlug(
-                  selectedCategorySlug === cat.slug ? null : cat.slug
-                )
-              }
-            />
-          ))}
-        </View>
+        {categories.length > 0 ? (
+          <View style={styles.categoriesGrid}>
+            {categories.map((cat) => (
+              <CategoryPill
+                key={cat._id}
+                category={cat}
+                width={categoryCardWidth}
+                isSelected={selectedCategorySlug === cat.slug}
+                onPress={() =>
+                  setSelectedCategorySlug(
+                    selectedCategorySlug === cat.slug ? null : cat.slug
+                  )
+                }
+              />
+            ))}
+          </View>
+        ) : !categoriesLoading ? (
+          <View style={styles.emptyCategoriesContainer}>
+            <Text style={styles.emptyCategoriesText}>No categories available yet.</Text>
+          </View>
+        ) : null}
 
         {/* 2. Super Saver Offers — Two-Column Vertical Grid with Independent Load More */}
         {!selectedCategorySlug && offers.length > 0 && (
@@ -272,7 +278,11 @@ export default function HomeScreen() {
           ) : products.length === 0 ? (
             <View style={styles.emptyContainer}>
               <Ionicons name="basket-outline" size={40} color={Colors.textMuted} />
-              <Text style={styles.emptyTitle}>No items available in this category</Text>
+              <Text style={styles.emptyTitle}>
+                {selectedCategorySlug
+                  ? 'No items available in this category'
+                  : 'No products available yet.'}
+              </Text>
             </View>
           ) : (
             <View style={styles.productsGrid}>
@@ -418,5 +428,14 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: Typography.sizes.sm,
     color: Colors.textSecondary,
+  },
+  emptyCategoriesContainer: {
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.md,
+  },
+  emptyCategoriesText: {
+    fontSize: Typography.sizes.xs + 1,
+    color: Colors.textMuted,
+    fontStyle: 'italic',
   },
 });

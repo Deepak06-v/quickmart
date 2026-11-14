@@ -6,14 +6,16 @@
   "scripts": {
     "dev": "tsx watch src/app.ts",
     "build:backend": "tsc",
-    "build:admin": "npm --prefix admin-ui install && npm --prefix admin-ui run build",
+    "build:admin": "npm --prefix admin-ui install --include=dev && npm --prefix admin-ui run build",
     "build": "tsc && npm run build:admin",
     "start": "node dist/app.js",
     "seed": "tsx scripts/seed.ts",
+    "cleanup:mock": "tsx scripts/cleanup-mock-catalog.ts",
     "test:api": "tsx scripts/test-api.ts",
     "test:admin": "tsx scripts/test-admin-api.ts",
     "test:admin:env": "tsx scripts/test-admin-env-sync.ts",
     "test:admin:serving": "tsx scripts/test-admin-serving.ts",
+    "test:catalog": "tsx scripts/test-no-mock-seeding.ts",
     "test:apitxt": "tsx scripts/test-apitxt.ts"
   },
   "keywords": [

@@ -4,6 +4,9 @@ import { env } from './env';
 let mongodInstance: any = null;
 
 export async function connectDB(): Promise<void> {
+  if (mongoose.connection.readyState === 1) {
+    return;
+  }
   try {
     if (env.USE_IN_MEMORY_DB) {
       console.log('🔄 Initializing in-memory MongoDB server for testing/development...');

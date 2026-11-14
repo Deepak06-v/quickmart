@@ -7,7 +7,8 @@ import fs from 'fs';
 import { env } from './config/env';
 import { connectDB } from './config/db';
 import { syncAdminFromEnv } from './utils/syncAdmin';
-import { autoSeedIfEmpty } from './utils/autoSeed';
+import { ensureDeliveryConfig } from './utils/ensureDeliveryConfig';
+import { cleanupMockCatalog } from './utils/catalogCleanup';
 import apiRoutes from './routes';
 import { errorHandler } from './middleware/errorHandler';
 
@@ -75,7 +76,8 @@ app.use(errorHandler);
 export async function startServer() {
   await connectDB();
   await syncAdminFromEnv();
-  await autoSeedIfEmpty();
+  await ensureDeliveryConfig();
+  await cleanupMockCatalog();
   const server = app.listen(env.PORT, '0.0.0.0', () => {
     console.log(`\n🚀 QuickMart Hyperlocal Backend is running on port ${env.PORT}`);
     console.log(`🌐 Base URL: http://localhost:${env.PORT}`);

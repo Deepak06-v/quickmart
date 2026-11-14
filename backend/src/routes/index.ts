@@ -1,5 +1,4 @@
 import { Router } from 'express';
-import { autoSeedIfEmpty } from '../utils/autoSeed';
 import authRoutes from './authRoutes';
 import configRoutes from './configRoutes';
 import categoryRoutes from './categoryRoutes';
@@ -30,18 +29,13 @@ router.get('/health', (_req, res) => {
   });
 });
 
-// Manual/On-demand Seed endpoint
-router.all('/seed', async (req, res, next) => {
-  try {
-    const force = req.query.force === 'true' || req.body?.force === true;
-    await autoSeedIfEmpty(force);
-    res.status(200).json({
-      success: true,
-      message: 'Catalog seeded successfully.',
-    });
-  } catch (error) {
-    next(error);
-  }
+// Mock catalog seeding is permanently disabled
+router.all('/seed', (_req, res) => {
+  res.status(400).json({
+    success: false,
+    message:
+      'Automatic mock data seeding has been disabled. All products and categories must be managed through the Admin Dashboard.',
+  });
 });
 
 export default router;
