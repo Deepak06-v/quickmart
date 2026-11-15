@@ -12,7 +12,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons } from '../../src/components/Icon';
 import { IllustrativeMap } from '../../src/components/IllustrativeMap';
 import { StatusBadge } from '../../src/components/StatusBadge';
 import { api } from '../../src/api/client';

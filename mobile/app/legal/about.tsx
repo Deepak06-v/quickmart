@@ -1,8 +1,8 @@
 import React from 'react';
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Linking } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Linking, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons } from '../../src/components/Icon';
 import { Colors, Typography, Spacing, BorderRadius, Shadows } from '../../src/theme';
 
 export default function AboutScreen() {
@@ -32,9 +32,11 @@ export default function AboutScreen() {
 
       <ScrollView style={styles.container} contentContainerStyle={styles.content}>
         <View style={styles.heroBox}>
-          <View style={styles.logoCircle}>
-            <Ionicons name="cart" size={40} color={Colors.primary} />
-          </View>
+          <Image
+            source={require('../../assets/logo-original.png')}
+            style={styles.heroLogo}
+            resizeMode="contain"
+          />
           <Text style={styles.heroTitle}>QuickMart Hyperlocal</Text>
           <Text style={styles.heroTagline}>
             Fresh groceries delivered to your village and town doorstep in under 30 minutes.
@@ -115,6 +117,12 @@ const styles = StyleSheet.create({
     borderColor: Colors.border,
     marginBottom: Spacing.xl,
     ...Shadows.subtle,
+  },
+  heroLogo: {
+    width: 80,
+    height: 80,
+    borderRadius: BorderRadius.lg,
+    marginBottom: Spacing.md,
   },
   logoCircle: {
     width: 76,

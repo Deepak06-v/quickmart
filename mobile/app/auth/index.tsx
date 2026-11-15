@@ -11,10 +11,11 @@ import {
   Platform,
   TouchableWithoutFeedback,
   Keyboard,
+  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons } from '../../src/components/Icon';
 import { useAuthStore } from '../../src/store/authStore';
 import { api } from '../../src/api/client';
 import { Colors, Typography, Spacing, BorderRadius, Shadows } from '../../src/theme';
@@ -133,9 +134,11 @@ export default function AuthScreen() {
           </View>
 
           <View style={styles.content}>
-            <View style={styles.logoBadge}>
-              <Ionicons name="cart" size={32} color={Colors.primary} />
-            </View>
+            <Image
+              source={require('../../assets/logo-original.png')}
+              style={styles.brandLogo}
+              resizeMode="contain"
+            />
 
             <Text style={styles.title}>
               {step === 'phone' ? 'Quick Login or Sign Up' : 'Verify Mobile Number'}
@@ -290,6 +293,12 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: Spacing.xl,
     paddingTop: Spacing.md,
+  },
+  brandLogo: {
+    width: 80,
+    height: 80,
+    borderRadius: BorderRadius.lg,
+    marginBottom: Spacing.lg,
   },
   logoBadge: {
     width: 64,

@@ -1,5 +1,6 @@
 // metro.config.js
 const { getDefaultConfig } = require('expo/metro-config');
+const path = require('path');
 
 const config = getDefaultConfig(__dirname);
 
@@ -11,10 +12,11 @@ config.resolver.sourceExts = [
   'mjs',
 ];
 
-// Force query-string v7 (CJS) — prevents any hoisted ESM v9 from leaking in
+// Force query-string v7 (CJS) & alias @expo/vector-icons to rock-solid SVG icon implementation
 config.resolver.extraNodeModules = {
   ...config.resolver.extraNodeModules,
   'query-string': require.resolve('query-string'),
+  '@expo/vector-icons': path.resolve(__dirname, 'src/components/Icon.tsx'),
 };
 
 // ── Transformer tweaks ───────────────────────────────────────────────────────

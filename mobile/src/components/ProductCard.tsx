@@ -8,7 +8,7 @@ import {
   Dimensions,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons } from './Icon';
 import { IProduct } from '../types';
 import { useCartStore } from '../store/cartStore';
 import { QuantityController } from './QuantityController';

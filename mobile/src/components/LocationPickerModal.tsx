@@ -10,7 +10,7 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons } from './Icon';
 import { useLocationStore } from '../store/locationStore';
 import { Colors, Typography, Spacing, BorderRadius, Shadows } from '../theme';
 

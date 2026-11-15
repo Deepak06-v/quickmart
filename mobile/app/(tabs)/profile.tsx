@@ -14,7 +14,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons } from '../../src/components/Icon';
 import { useAuthStore } from '../../src/store/authStore';
 import { api, API_BASE_URL } from '../../src/api/client';
 import { Colors, Typography, Spacing, BorderRadius, Shadows } from '../../src/theme';

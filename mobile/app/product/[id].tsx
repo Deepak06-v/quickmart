@@ -12,7 +12,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons } from '../../src/components/Icon';
 import { useCartStore } from '../../src/store/cartStore';
 import { QuantityController } from '../../src/components/QuantityController';
 import { ProductCard } from '../../src/components/ProductCard';
