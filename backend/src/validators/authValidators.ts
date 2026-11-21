@@ -24,3 +24,22 @@ export const verifyAuthOtpSchema = z.object({
   otp: z.string().trim().length(6, 'OTP must be exactly 6 digits'),
   name: z.string().trim().min(2).max(50).optional(),
 });
+
+export const requestPublicDeleteAccountOtpSchema = z.object({
+  mobile: z
+    .string()
+    .transform((val) => sanitizeMobile(val))
+    .refine((val) => mobileRegex.test(val), {
+      message: 'Please provide a valid 10-digit Indian mobile number',
+    }),
+});
+
+export const confirmPublicDeleteAccountSchema = z.object({
+  mobile: z
+    .string()
+    .transform((val) => sanitizeMobile(val))
+    .refine((val) => mobileRegex.test(val), {
+      message: 'Please provide a valid 10-digit Indian mobile number',
+    }),
+  otp: z.string().trim().length(6, 'OTP must be exactly 6 digits'),
+});

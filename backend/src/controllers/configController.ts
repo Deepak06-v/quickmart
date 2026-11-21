@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { DeliveryConfig } from '../models/DeliveryConfig';
 import { env } from '../config/env';
 import { isWithinDeliveryRadius, calculateDeliveryEta } from '../utils/geo';
+import { calculateDeliveryFee } from '../utils/deliveryFee';
 import { z } from 'zod';
 
 const validateLocationSchema = z.object({
@@ -69,11 +70,13 @@ export async function validateDeliveryLocation(req: Request, res: Response, next
     );
 
     const eta = calculateDeliveryEta(distanceKm, speed, prep);
+    const deliveryFee = isDeliverable ? calculateDeliveryFee(distanceKm) : null;
 
     res.status(200).json({
       success: true,
       isDeliverable,
       distanceKm,
+      deliveryFee,
       estimatedMinutes: isDeliverable ? eta.estimatedMinutes : null,
       maxRadiusKm: radius,
       storeName: storeLoc.name,

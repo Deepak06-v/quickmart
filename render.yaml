@@ -57,3 +57,9 @@ services:
         value: "25"
       - key: PREPARATION_TIME_MINUTES
         value: "15"
+      - key: DELIVERY_FEE_THRESHOLD_KM
+        value: "2"
+      - key: DELIVERY_FEE_AT_OR_BELOW_THRESHOLD
+        value: "10"
+      - key: DELIVERY_FEE_ABOVE_THRESHOLD
+        value: "25"

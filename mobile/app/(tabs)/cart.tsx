@@ -37,6 +37,10 @@ export default function CartScreen() {
 
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const isDeliverable = useLocationStore((state) => state.isDeliverable);
+  const deliveryFee = useLocationStore((state) => state.deliveryFee);
+  const distanceKm = useLocationStore((state) => state.distanceKm);
+  const locationName = useLocationStore((state) => state.locationName);
+  const coordinates = useLocationStore((state) => state.coordinates);
   const deliveryConfig = useLocationStore((state) => state.deliveryConfig);
 
   // Poll active order if logged in
@@ -49,15 +53,10 @@ export default function CartScreen() {
 
   const activeOrder = activeOrderData?.activeOrder;
 
-  // Delivery fee rules
-  const baseDeliveryFee = deliveryConfig?.baseDeliveryFee ?? 25;
-  const freeThreshold = deliveryConfig?.freeDeliveryThreshold ?? 299;
+  // Delivery fee rules obtained from backend
   const minOrderAmount = deliveryConfig?.minOrderAmount ?? 99;
-
-  const isFreeDelivery = subtotal >= freeThreshold;
-  const deliveryFee = subtotal === 0 ? 0 : isFreeDelivery ? 0 : baseDeliveryFee;
-  const totalAmount = subtotal + deliveryFee;
-  const amountNeededForFree = Math.max(0, freeThreshold - subtotal);
+  const applicableDeliveryFee = subtotal === 0 ? 0 : deliveryFee;
+  const totalAmount = subtotal + (applicableDeliveryFee ?? 0);
   const meetsMinOrder = subtotal >= minOrderAmount;
 
   const handleCheckout = () => {
@@ -65,6 +64,14 @@ export default function CartScreen() {
       Alert.alert(
         'Minimum Order Required',
         `Please add items worth ₹${minOrderAmount - subtotal} more to meet the minimum order value of ₹${minOrderAmount}.`
+      );
+      return;
+    }
+
+    if (!coordinates) {
+      Alert.alert(
+        'Delivery Location Required',
+        'Please select your delivery address to verify serviceability and calculate distance-based delivery fee.'
       );
       return;
     }
@@ -130,29 +137,28 @@ export default function CartScreen() {
           />
         ) : (
           <>
-            {/* Free Delivery Goal Bar */}
+            {/* Delivery Location & Distance-based Fee Card */}
             <View style={styles.freeDeliveryCard}>
               <View style={styles.freeDeliveryRow}>
                 <Ionicons
-                  name={isFreeDelivery ? 'checkmark-circle' : 'bicycle'}
+                  name={isDeliverable ? 'bicycle' : 'alert-circle'}
                   size={20}
-                  color={isFreeDelivery ? Colors.primaryDark : Colors.accent}
+                  color={isDeliverable ? Colors.primaryDark : Colors.accent}
                 />
-                <Text style={styles.freeDeliveryText}>
-                  {isFreeDelivery
-                    ? '🎉 You unlocked FREE Delivery!'
-                    : `Add ₹${amountNeededForFree} more for FREE Delivery`}
-                </Text>
-              </View>
-              <View style={styles.freeDeliveryTrack}>
-                <View
-                  style={[
-                    styles.freeDeliveryProgress,
-                    {
-                      width: `${Math.min(100, Math.round((subtotal / freeThreshold) * 100))}%`,
-                    },
-                  ]}
-                />
+                <View style={{ flex: 1, marginLeft: 8 }}>
+                  <Text style={styles.freeDeliveryText}>
+                    {coordinates
+                      ? isDeliverable
+                        ? `Delivery to: ${locationName} (${distanceKm !== null ? `${distanceKm} km` : ''})`
+                        : 'Selected location is outside delivery area'
+                      : 'Set delivery address to view delivery fee'}
+                  </Text>
+                  {applicableDeliveryFee !== null && isDeliverable && (
+                    <Text style={{ fontSize: Typography.sizes.xs, color: Colors.textMuted, marginTop: 2 }}>
+                      Distance-based Delivery Fee: ₹{applicableDeliveryFee}
+                    </Text>
+                  )}
+                </View>
               </View>
             </View>
 
@@ -207,19 +213,14 @@ export default function CartScreen() {
               <View style={styles.billRow}>
                 <View style={styles.deliveryFeeLabelRow}>
                   <Text style={styles.billLabel}>Delivery Fee</Text>
-                  {isFreeDelivery && (
-                    <View style={styles.freeBadge}>
-                      <Text style={styles.freeBadgeText}>FREE</Text>
-                    </View>
+                  {distanceKm !== null && (
+                    <Text style={{ fontSize: Typography.sizes.xs, color: Colors.textMuted, marginLeft: 6 }}>
+                      ({distanceKm} km)
+                    </Text>
                   )}
                 </View>
-                <Text
-                  style={[
-                    styles.billValue,
-                    isFreeDelivery && styles.billValueStrikethrough,
-                  ]}
-                >
-                  {isFreeDelivery ? `₹${baseDeliveryFee}` : `₹${deliveryFee}`}
+                <Text style={styles.billValue}>
+                  {applicableDeliveryFee !== null ? `₹${applicableDeliveryFee}` : 'Pending location'}
                 </Text>
               </View>
 

@@ -16,7 +16,8 @@
     "test:admin:env": "tsx scripts/test-admin-env-sync.ts",
     "test:admin:serving": "tsx scripts/test-admin-serving.ts",
     "test:catalog": "tsx scripts/test-no-mock-seeding.ts",
-    "test:apitxt": "tsx scripts/test-apitxt.ts"
+    "test:apitxt": "tsx scripts/test-apitxt.ts",
+    "test:fee": "tsx scripts/test-delivery-fee.ts"
   },
   "keywords": [
     "hyperlocal",

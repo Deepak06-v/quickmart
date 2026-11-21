@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons } from '../src/components/Icon';
 import { useAuthStore } from '../src/store/authStore';
 import { useCartStore } from '../src/store/cartStore';
 import { useLocationStore } from '../src/store/locationStore';
@@ -96,8 +96,18 @@ export default function CheckoutScreen() {
       return;
     }
 
+    if (!coordinates) {
+      Alert.alert('Location Coordinates Required', 'Please set your delivery location coordinates to confirm serviceability and delivery fee.');
+      return;
+    }
+
     if (validationResult && !validationResult.isDeliverable) {
-      Alert.alert('Delivery Unavailable', validationResult.deliveryMessage);
+      Alert.alert('Delivery Unavailable', validationResult.deliveryMessage || 'Delivery is unavailable at this address.');
+      return;
+    }
+
+    if (validationResult && (validationResult.deliveryFee === null || validationResult.deliveryFee === undefined)) {
+      Alert.alert('Fee Calculation Failed', 'Unable to determine the delivery fee for this location. Please check your coordinates.');
       return;
     }
 
@@ -164,8 +174,8 @@ export default function CheckoutScreen() {
   }
 
   const subtotal = validationResult?.subtotal ?? 0;
-  const deliveryFee = validationResult?.deliveryFee ?? 25;
-  const totalAmount = validationResult?.totalAmount ?? subtotal + deliveryFee;
+  const deliveryFee = validationResult?.deliveryFee;
+  const totalAmount = validationResult?.totalAmount ?? (subtotal + (deliveryFee ?? 0));
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
@@ -327,9 +337,16 @@ export default function CheckoutScreen() {
           </View>
 
           <View style={styles.summaryBillRow}>
-            <Text style={styles.summaryBillLabel}>Delivery Fee</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Text style={styles.summaryBillLabel}>Delivery Fee</Text>
+              {validationResult?.distanceKm !== null && validationResult?.distanceKm !== undefined && (
+                <Text style={{ fontSize: Typography.sizes.xs, color: Colors.textMuted, marginLeft: 6 }}>
+                  ({validationResult.distanceKm} km)
+                </Text>
+              )}
+            </View>
             <Text style={styles.summaryBillVal}>
-              {deliveryFee === 0 ? 'FREE' : `₹${deliveryFee}`}
+              {deliveryFee !== null && deliveryFee !== undefined ? `₹${deliveryFee}` : 'Location required'}
             </Text>
           </View>
 

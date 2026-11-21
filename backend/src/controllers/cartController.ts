@@ -3,6 +3,7 @@ import { Product } from '../models/Product';
 import { DeliveryConfig } from '../models/DeliveryConfig';
 import { env } from '../config/env';
 import { isWithinDeliveryRadius, calculateDeliveryEta } from '../utils/geo';
+import { calculateDeliveryFee } from '../utils/deliveryFee';
 import { z } from 'zod';
 
 const validateCartSchema = z.object({
@@ -90,8 +91,9 @@ export async function validateCart(req: Request, res: Response, next: NextFuncti
     // Check delivery location if provided
     let isDeliverable = true;
     let deliveryMessage = 'Delivery available';
-    let distanceKm = 0;
+    let distanceKm: number | null = null;
     let etaMinutes = 30;
+    let deliveryFee: number | null = null;
 
     if (coordinates) {
       const check = isWithinDeliveryRadius(
@@ -106,6 +108,7 @@ export async function validateCart(req: Request, res: Response, next: NextFuncti
 
       if (!isDeliverable) {
         deliveryMessage = `Delivery unavailable at this location. Maximum delivery range is ${config.deliveryRadiusKm} km from our hub.`;
+        deliveryFee = null;
       } else {
         const eta = calculateDeliveryEta(
           distanceKm,
@@ -113,20 +116,14 @@ export async function validateCart(req: Request, res: Response, next: NextFuncti
           config.preparationTimeMinutes
         );
         etaMinutes = eta.estimatedMinutes;
+        deliveryFee = calculateDeliveryFee(distanceKm);
       }
+    } else {
+      deliveryMessage = 'Please select a delivery location to calculate delivery fee.';
+      deliveryFee = null;
     }
 
-    // Delivery fee calculation
-    let deliveryFee = 0;
-    if (subtotal > 0) {
-      if (subtotal >= config.freeDeliveryThreshold) {
-        deliveryFee = 0;
-      } else {
-        deliveryFee = config.baseDeliveryFee;
-      }
-    }
-
-    const totalAmount = subtotal + deliveryFee;
+    const totalAmount = subtotal + (deliveryFee || 0);
     const minOrderMet = subtotal >= config.minOrderAmount;
 
     res.status(200).json({
@@ -136,8 +133,6 @@ export async function validateCart(req: Request, res: Response, next: NextFuncti
       itemCount: totalItemCount,
       subtotal,
       deliveryFee,
-      freeDeliveryThreshold: config.freeDeliveryThreshold,
-      amountNeededForFreeDelivery: Math.max(0, config.freeDeliveryThreshold - subtotal),
       minOrderAmount: config.minOrderAmount,
       minOrderMet,
       totalAmount,

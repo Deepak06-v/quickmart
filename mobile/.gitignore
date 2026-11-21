@@ -5,11 +5,13 @@ web-build/
 dist/
 npm-debug.*
 *.jks
+*.keystore
 *.p8
 *.p12
 *.key
 *.mobileprovision
 artifacts/
+release/
 *.apk
 *.aab
 .env

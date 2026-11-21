@@ -8,6 +8,7 @@ interface LocationState {
   coordinates: { latitude: number; longitude: number } | null;
   isDeliverable: boolean;
   distanceKm: number | null;
+  deliveryFee: number | null;
   estimatedMinutes: number | null;
   serviceMessage: string;
   permissionGranted: boolean;
@@ -25,6 +26,7 @@ export const useLocationStore = create<LocationState>((set, get) => ({
   coordinates: null,
   isDeliverable: true, // Default to true so guest can browse products immediately
   distanceKm: null,
+  deliveryFee: null,
   estimatedMinutes: null,
   serviceMessage: '',
   permissionGranted: false,
@@ -49,6 +51,7 @@ export const useLocationStore = create<LocationState>((set, get) => ({
         success: boolean;
         isDeliverable: boolean;
         distanceKm: number;
+        deliveryFee: number | null;
         estimatedMinutes: number | null;
         storeName: string;
         message: string;
@@ -74,6 +77,7 @@ export const useLocationStore = create<LocationState>((set, get) => ({
         coordinates: { latitude, longitude },
         isDeliverable: res.isDeliverable,
         distanceKm: res.distanceKm,
+        deliveryFee: res.deliveryFee ?? null,
         estimatedMinutes: res.estimatedMinutes,
         serviceMessage: res.message,
         isChecking: false,
@@ -86,6 +90,7 @@ export const useLocationStore = create<LocationState>((set, get) => ({
         locationName: customName || 'Current Location',
         coordinates: { latitude, longitude },
         isDeliverable: true,
+        deliveryFee: null,
         isChecking: false,
       });
       return true;

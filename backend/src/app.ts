@@ -4,7 +4,7 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import path from 'path';
 import fs from 'fs';
-import { env } from './config/env';
+import { env, getDeliveryFeeConfig } from './config/env';
 import { connectDB } from './config/db';
 import { syncAdminFromEnv } from './utils/syncAdmin';
 import { ensureDeliveryConfig } from './utils/ensureDeliveryConfig';
@@ -42,6 +42,26 @@ app.get('/health', (_req, res) => {
 // Mount API routes
 app.use('/api', apiRoutes);
 
+// Public Privacy Policy page for Google Play compliance
+const privacyHtmlPath = path.resolve(__dirname, 'public/privacy.html');
+app.get('/privacy', (_req, res) => {
+  if (fs.existsSync(privacyHtmlPath)) {
+    res.sendFile(privacyHtmlPath);
+  } else {
+    res.status(200).send('<h1>QuickMart Privacy Policy</h1><p>Contact privacy@quickmart.in for disclosures.</p>');
+  }
+});
+
+// Public Account Deletion page for Google Play compliance
+const deleteAccountHtmlPath = path.resolve(__dirname, 'public/delete-account.html');
+app.get(['/delete-account', '/account-deletion'], (_req, res) => {
+  if (fs.existsSync(deleteAccountHtmlPath)) {
+    res.sendFile(deleteAccountHtmlPath);
+  } else {
+    res.status(200).send('<h1>QuickMart Account Deletion</h1><p>Contact privacy@quickmart.in to request deletion.</p>');
+  }
+});
+
 // Admin Web Application static hosting
 const adminDistPath = path.resolve(__dirname, '../admin-ui/dist');
 app.use('/admin', express.static(adminDistPath));
@@ -78,11 +98,13 @@ export async function startServer() {
   await syncAdminFromEnv();
   await ensureDeliveryConfig();
   await cleanupMockCatalog();
+  const feeCfg = getDeliveryFeeConfig();
   const server = app.listen(env.PORT, '0.0.0.0', () => {
     console.log(`\n🚀 QuickMart Hyperlocal Backend is running on port ${env.PORT}`);
     console.log(`🌐 Base URL: http://localhost:${env.PORT}`);
     console.log(`📦 Health check: http://localhost:${env.PORT}/api/health`);
     console.log(`⚙️  Environment: ${env.NODE_ENV}`);
+    console.log(`🚚 Delivery Fee: <= ${feeCfg.thresholdKm} km: ₹${feeCfg.feeAtOrBelow}, > ${feeCfg.thresholdKm} km: ₹${feeCfg.feeAbove}`);
     console.log(`📱 SMS Provider: ${env.SMS_PROVIDER}\n`);
   });
   return server;

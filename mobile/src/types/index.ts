@@ -129,3 +129,13 @@ export interface ICartItem {
   product: IProduct;
   quantity: number;
 }
+
+export interface IDeliveryLocationValidation {
+  success: boolean;
+  isDeliverable: boolean;
+  distanceKm: number;
+  deliveryFee: number | null;
+  estimatedMinutes: number | null;
+  storeName: string;
+  message: string;
+}

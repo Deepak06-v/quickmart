@@ -6,6 +6,7 @@ import { DeliveryConfig } from '../models/DeliveryConfig';
 import { env } from '../config/env';
 import { issueAndSendOtp, verifyAndConsumeOtp } from '../services/otpService';
 import { isWithinDeliveryRadius, calculateDeliveryEta } from '../utils/geo';
+import { calculateDeliveryFee } from '../utils/deliveryFee';
 import { generateOrderNumber } from '../utils/orderNumber';
 import { requestOrderOtpSchema, confirmOrderSchema, cancelOrderSchema } from '../validators/orderValidators';
 import { AppError } from '../middleware/errorHandler';
@@ -28,22 +29,33 @@ export async function requestOrderConfirmationOtp(
       minOrderAmount: env.MIN_ORDER_AMOUNT,
     };
 
-    // Validate delivery location coordinates if present
-    if (address.coordinates) {
-      const check = isWithinDeliveryRadius(
-        address.coordinates.latitude,
-        address.coordinates.longitude,
-        config.storeLocation.latitude,
-        config.storeLocation.longitude,
-        config.deliveryRadiusKm
+    // Validate delivery location coordinates
+    if (
+      !address.coordinates ||
+      typeof address.coordinates.latitude !== 'number' ||
+      typeof address.coordinates.longitude !== 'number' ||
+      isNaN(address.coordinates.latitude) ||
+      isNaN(address.coordinates.longitude)
+    ) {
+      throw new AppError(
+        'Delivery address coordinates are required to calculate delivery distance and fee.',
+        400
       );
+    }
 
-      if (!check.isDeliverable) {
-        throw new AppError(
-          `Delivery is currently unavailable at this address (${check.distanceKm} km away). Our delivery radius is ${config.deliveryRadiusKm} km.`,
-          400
-        );
-      }
+    const check = isWithinDeliveryRadius(
+      address.coordinates.latitude,
+      address.coordinates.longitude,
+      config.storeLocation.latitude,
+      config.storeLocation.longitude,
+      config.deliveryRadiusKm
+    );
+
+    if (!check.isDeliverable) {
+      throw new AppError(
+        `Delivery is currently unavailable at this address (${check.distanceKm} km away). Our delivery radius is ${config.deliveryRadiusKm} km.`,
+        400
+      );
     }
 
     // Revalidate items & compute subtotal from database
@@ -122,21 +134,31 @@ export async function confirmOrder(
       preparationTimeMinutes: env.PREPARATION_TIME_MINUTES,
     };
 
-    // Calculate distance and ETA
-    let distanceKm = 2.5; // Default local distance
-    if (address.coordinates) {
-      const check = isWithinDeliveryRadius(
-        address.coordinates.latitude,
-        address.coordinates.longitude,
-        config.storeLocation.latitude,
-        config.storeLocation.longitude,
-        config.deliveryRadiusKm
+    // Calculate distance, deliverability, and delivery fee from coordinates
+    if (
+      !address.coordinates ||
+      typeof address.coordinates.latitude !== 'number' ||
+      typeof address.coordinates.longitude !== 'number' ||
+      isNaN(address.coordinates.latitude) ||
+      isNaN(address.coordinates.longitude)
+    ) {
+      throw new AppError(
+        'Delivery address coordinates are required to calculate delivery distance and fee.',
+        400
       );
-      if (!check.isDeliverable) {
-        throw new AppError(`Delivery address is outside service zone (${check.distanceKm} km).`, 400);
-      }
-      distanceKm = check.distanceKm;
     }
+
+    const check = isWithinDeliveryRadius(
+      address.coordinates.latitude,
+      address.coordinates.longitude,
+      config.storeLocation.latitude,
+      config.storeLocation.longitude,
+      config.deliveryRadiusKm
+    );
+    if (!check.isDeliverable) {
+      throw new AppError(`Delivery address is outside service zone (${check.distanceKm} km).`, 400);
+    }
+    const distanceKm = check.distanceKm;
 
     const eta = calculateDeliveryEta(
       distanceKm,
@@ -183,8 +205,12 @@ export async function confirmOrder(
       throw new AppError(`Minimum order amount is ₹${config.minOrderAmount}.`, 400);
     }
 
-    const deliveryFee = subtotal >= config.freeDeliveryThreshold ? 0 : config.baseDeliveryFee;
+    const deliveryFee = calculateDeliveryFee(distanceKm);
     const totalAmount = subtotal + deliveryFee;
+
+    if (subtotal < 0 || deliveryFee < 0 || totalAmount < 0) {
+      throw new AppError('Invalid order amounts calculated.', 400);
+    }
 
     const orderNumber = generateOrderNumber();
 

@@ -30,6 +30,7 @@ build/
 .expo-shared/
 web-build/
 *.jks
+*.keystore
 *.p8
 *.p12
 *.key
@@ -39,6 +40,7 @@ web-build/
 *.aab
 artifacts/
 mobile/artifacts/
+release/
 
 # ==========================================
 # Backend Runtime & Uploads
