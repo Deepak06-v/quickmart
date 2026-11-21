@@ -18,9 +18,34 @@ export async function ensureDeliveryConfig(): Promise<void> {
       preparationTimeMinutes: env.PREPARATION_TIME_MINUTES,
       isAcceptingOrders: true,
       appVersion: '1.0.0',
-      supportPhone: '+91 98765 43210',
-      supportEmail: 'support@quickmart.in',
+      supportPhone: env.SUPPORT_PHONE,
+      supportEmail: env.SUPPORT_EMAIL,
+      privacyEmail: env.PRIVACY_EMAIL,
+      whatsappNumber: env.WHATSAPP_NUMBER,
     });
     console.log('⚙️  [Delivery Config] Initialized store delivery parameters.');
+  } else {
+    // Keep support contact parameters synced with latest environment settings
+    let changed = false;
+    if (config.supportPhone !== env.SUPPORT_PHONE) {
+      config.supportPhone = env.SUPPORT_PHONE;
+      changed = true;
+    }
+    if (config.supportEmail !== env.SUPPORT_EMAIL) {
+      config.supportEmail = env.SUPPORT_EMAIL;
+      changed = true;
+    }
+    if (config.privacyEmail !== env.PRIVACY_EMAIL) {
+      config.privacyEmail = env.PRIVACY_EMAIL;
+      changed = true;
+    }
+    if (config.whatsappNumber !== env.WHATSAPP_NUMBER) {
+      config.whatsappNumber = env.WHATSAPP_NUMBER;
+      changed = true;
+    }
+    if (changed) {
+      await config.save();
+      console.log('⚙️  [Delivery Config] Synchronized contact information from environment.');
+    }
   }
 }

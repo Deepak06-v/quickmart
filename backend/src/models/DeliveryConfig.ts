@@ -17,6 +17,8 @@ export interface IDeliveryConfig extends Document {
   appVersion: string;
   supportPhone: string;
   supportEmail: string;
+  privacyEmail?: string;
+  whatsappNumber?: string;
   updatedAt: Date;
 }
 
@@ -38,6 +40,8 @@ const DeliveryConfigSchema = new Schema<IDeliveryConfig>(
     appVersion: { type: String, default: '1.0.0' },
     supportPhone: { type: String, default: '+91 98765 43210' },
     supportEmail: { type: String, default: 'support@quickmart.in' },
+    privacyEmail: { type: String, default: 'privacy@quickmart.in' },
+    whatsappNumber: { type: String, default: '+91 98765 43210' },
   },
   {
     timestamps: true,

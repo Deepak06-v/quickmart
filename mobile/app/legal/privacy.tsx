@@ -3,10 +3,13 @@ import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-nati
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '../../src/components/Icon';
+import { useLocationStore } from '../../src/store/locationStore';
 import { Colors, Typography, Spacing } from '../../src/theme';
 
 export default function PrivacyPolicyScreen() {
   const router = useRouter();
+  const deliveryConfig = useLocationStore((state) => state.deliveryConfig);
+  const privacyEmail = deliveryConfig?.privacyEmail || deliveryConfig?.supportEmail || 'privacy@quickmart.in';
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
@@ -49,7 +52,7 @@ export default function PrivacyPolicyScreen() {
 
         <Text style={styles.heading}>5. Contact Our Privacy Officer</Text>
         <Text style={styles.paragraph}>
-          For inquiries or data privacy requests, contact us at privacy@quickmart.in.
+          For inquiries or data privacy requests, contact us at {privacyEmail}.
         </Text>
       </ScrollView>
     </SafeAreaView>

@@ -95,4 +95,18 @@ export const env = {
   get DELIVERY_FEE_ABOVE_THRESHOLD(): number {
     return getDeliveryFeeConfig().feeAbove;
   },
+
+  // Contact and Support Information (configurable in environment at any time)
+  get SUPPORT_PHONE(): string {
+    return (process.env.SUPPORT_PHONE || '+91 98765 43210').trim();
+  },
+  get SUPPORT_EMAIL(): string {
+    return (process.env.SUPPORT_EMAIL || 'support@quickmart.in').toLowerCase().trim();
+  },
+  get PRIVACY_EMAIL(): string {
+    return (process.env.PRIVACY_EMAIL || process.env.SUPPORT_EMAIL || 'privacy@quickmart.in').toLowerCase().trim();
+  },
+  get WHATSAPP_NUMBER(): string {
+    return (process.env.WHATSAPP_NUMBER || process.env.SUPPORT_PHONE || '+91 98765 43210').trim();
+  },
 };

@@ -42,23 +42,35 @@ app.get('/health', (_req, res) => {
 // Mount API routes
 app.use('/api', apiRoutes);
 
-// Public Privacy Policy page for Google Play compliance
+// Public Privacy Policy page for Google Play compliance (dynamically uses backend env contact info)
 const privacyHtmlPath = path.resolve(__dirname, 'public/privacy.html');
 app.get('/privacy', (_req, res) => {
   if (fs.existsSync(privacyHtmlPath)) {
-    res.sendFile(privacyHtmlPath);
+    let content = fs.readFileSync(privacyHtmlPath, 'utf8');
+    content = content
+      .replace(/privacy@quickmart\.in/g, env.PRIVACY_EMAIL)
+      .replace(/support@quickmart\.in/g, env.SUPPORT_EMAIL)
+      .replace(/\+91 98765 43210/g, env.SUPPORT_PHONE)
+      .replace(/Main Market Road, Anand 388001, Gujarat, India/g, env.STORE_LOCATION.address);
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.status(200).send(content);
   } else {
-    res.status(200).send('<h1>QuickMart Privacy Policy</h1><p>Contact privacy@quickmart.in for disclosures.</p>');
+    res.status(200).send(`<h1>QuickMart Privacy Policy</h1><p>Contact ${env.PRIVACY_EMAIL} for disclosures.</p>`);
   }
 });
 
-// Public Account Deletion page for Google Play compliance
+// Public Account Deletion page for Google Play compliance (dynamically uses backend env contact info)
 const deleteAccountHtmlPath = path.resolve(__dirname, 'public/delete-account.html');
 app.get(['/delete-account', '/account-deletion'], (_req, res) => {
   if (fs.existsSync(deleteAccountHtmlPath)) {
-    res.sendFile(deleteAccountHtmlPath);
+    let content = fs.readFileSync(deleteAccountHtmlPath, 'utf8');
+    content = content
+      .replace(/privacy@quickmart\.in/g, env.PRIVACY_EMAIL)
+      .replace(/support@quickmart\.in/g, env.SUPPORT_EMAIL);
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.status(200).send(content);
   } else {
-    res.status(200).send('<h1>QuickMart Account Deletion</h1><p>Contact privacy@quickmart.in to request deletion.</p>');
+    res.status(200).send(`<h1>QuickMart Account Deletion</h1><p>Contact ${env.PRIVACY_EMAIL} to request deletion.</p>`);
   }
 });
 
@@ -105,6 +117,7 @@ export async function startServer() {
     console.log(`📦 Health check: http://localhost:${env.PORT}/api/health`);
     console.log(`⚙️  Environment: ${env.NODE_ENV}`);
     console.log(`🚚 Delivery Fee: <= ${feeCfg.thresholdKm} km: ₹${feeCfg.feeAtOrBelow}, > ${feeCfg.thresholdKm} km: ₹${feeCfg.feeAbove}`);
+    console.log(`📞 Contact Support: ${env.SUPPORT_PHONE} | ${env.SUPPORT_EMAIL} (Privacy: ${env.PRIVACY_EMAIL})`);
     console.log(`📱 SMS Provider: ${env.SMS_PROVIDER}\n`);
   });
   return server;

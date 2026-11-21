@@ -63,3 +63,11 @@ services:
         value: "10"
       - key: DELIVERY_FEE_ABOVE_THRESHOLD
         value: "25"
+      - key: SUPPORT_PHONE
+        value: "+91 98765 43210"
+      - key: SUPPORT_EMAIL
+        value: "support@quickmart.in"
+      - key: PRIVACY_EMAIL
+        value: "privacy@quickmart.in"
+      - key: WHATSAPP_NUMBER
+        value: "+91 98765 43210"

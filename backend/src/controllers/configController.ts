@@ -25,8 +25,10 @@ export async function getDeliveryConfig(_req: Request, res: Response, next: Next
         preparationTimeMinutes: env.PREPARATION_TIME_MINUTES,
         isAcceptingOrders: true,
         appVersion: '1.0.0',
-        supportPhone: '+91 98765 43210',
-        supportEmail: 'support@quickmart.in',
+        supportPhone: env.SUPPORT_PHONE,
+        supportEmail: env.SUPPORT_EMAIL,
+        privacyEmail: env.PRIVACY_EMAIL,
+        whatsappNumber: env.WHATSAPP_NUMBER,
       });
     }
 
@@ -42,13 +44,33 @@ export async function getDeliveryConfig(_req: Request, res: Response, next: Next
         preparationTimeMinutes: config.preparationTimeMinutes,
         isAcceptingOrders: config.isAcceptingOrders,
         appVersion: config.appVersion,
-        supportPhone: config.supportPhone,
-        supportEmail: config.supportEmail,
+        supportPhone: env.SUPPORT_PHONE || config.supportPhone,
+        supportEmail: env.SUPPORT_EMAIL || config.supportEmail,
+        privacyEmail: env.PRIVACY_EMAIL || config.privacyEmail || 'privacy@quickmart.in',
+        whatsappNumber: env.WHATSAPP_NUMBER || config.whatsappNumber || env.SUPPORT_PHONE,
       },
     });
   } catch (error) {
     next(error);
   }
+}
+
+/**
+ * GET /api/config/contact
+ * Provides direct access to contact and customer support details from backend environment variables.
+ */
+export function getContactInfo(_req: Request, res: Response): void {
+  res.status(200).json({
+    success: true,
+    contact: {
+      supportPhone: env.SUPPORT_PHONE,
+      supportEmail: env.SUPPORT_EMAIL,
+      privacyEmail: env.PRIVACY_EMAIL,
+      whatsappNumber: env.WHATSAPP_NUMBER,
+      storeName: env.STORE_LOCATION.name,
+      storeAddress: env.STORE_LOCATION.address,
+    },
+  });
 }
 
 export async function validateDeliveryLocation(req: Request, res: Response, next: NextFunction): Promise<void> {

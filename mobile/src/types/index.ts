@@ -123,6 +123,8 @@ export interface IDeliveryConfig {
   appVersion: string;
   supportPhone: string;
   supportEmail: string;
+  privacyEmail?: string;
+  whatsappNumber?: string;
 }
 
 export interface ICartItem {

@@ -16,6 +16,7 @@ import { Ionicons } from '../../src/components/Icon';
 import { IllustrativeMap } from '../../src/components/IllustrativeMap';
 import { StatusBadge } from '../../src/components/StatusBadge';
 import { api } from '../../src/api/client';
+import { useLocationStore } from '../../src/store/locationStore';
 import { IOrder, OrderStatus } from '../../src/types';
 import { Colors, Typography, Spacing, BorderRadius, Shadows } from '../../src/theme';
 
@@ -75,8 +76,12 @@ export default function OrderDetailsScreen() {
     );
   };
 
+  const deliveryConfig = useLocationStore((state) => state.deliveryConfig);
+  const supportPhone = deliveryConfig?.supportPhone || '+91 98765 43210';
+
   const handleSupportCall = () => {
-    Linking.openURL('tel:+919876543210');
+    const cleanPhone = supportPhone.replace(/[^0-9+]/g, '');
+    Linking.openURL(`tel:${cleanPhone}`);
   };
 
   if (isLoading || !order) {

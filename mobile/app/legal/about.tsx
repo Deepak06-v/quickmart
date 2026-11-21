@@ -3,17 +3,22 @@ import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Linking, Image } 
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '../../src/components/Icon';
+import { useLocationStore } from '../../src/store/locationStore';
 import { Colors, Typography, Spacing, BorderRadius, Shadows } from '../../src/theme';
 
 export default function AboutScreen() {
   const router = useRouter();
+  const deliveryConfig = useLocationStore((state) => state.deliveryConfig);
+  const supportPhone = deliveryConfig?.supportPhone || '+91 98765 43210';
+  const supportEmail = deliveryConfig?.supportEmail || 'support@quickmart.in';
 
   const handleCallSupport = () => {
-    Linking.openURL('tel:+919876543210');
+    const cleanPhone = supportPhone.replace(/[^0-9+]/g, '');
+    Linking.openURL(`tel:${cleanPhone}`);
   };
 
   const handleEmailSupport = () => {
-    Linking.openURL('mailto:support@quickmart.in');
+    Linking.openURL(`mailto:${supportEmail}`);
   };
 
   return (
@@ -54,7 +59,7 @@ export default function AboutScreen() {
             <Ionicons name="call" size={20} color={Colors.primaryDark} />
             <View style={styles.supportTextCol}>
               <Text style={styles.supportLabel}>Helpline Number</Text>
-              <Text style={styles.supportValue}>+91 98765 43210</Text>
+              <Text style={styles.supportValue}>{supportPhone}</Text>
             </View>
           </TouchableOpacity>
 
@@ -64,7 +69,7 @@ export default function AboutScreen() {
             <Ionicons name="mail" size={20} color={Colors.primaryDark} />
             <View style={styles.supportTextCol}>
               <Text style={styles.supportLabel}>Customer Support Email</Text>
-              <Text style={styles.supportValue}>support@quickmart.in</Text>
+              <Text style={styles.supportValue}>{supportEmail}</Text>
             </View>
           </TouchableOpacity>
         </View>
